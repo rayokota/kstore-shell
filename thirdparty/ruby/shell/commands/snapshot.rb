@@ -20,7 +20,7 @@ module Shell
   module Commands
     class Snapshot < Command
       def help
-        return <<-EOF
+        <<-EOF
 Take a snapshot of specified table. Examples:
 
   hbase> snapshot 'sourceTable', 'snapshotName'
@@ -29,9 +29,7 @@ EOF
       end
 
       def command(table, snapshot_name, *args)
-        format_simple_command do
-          admin.snapshot(table, snapshot_name, *args)
-        end
+        admin.snapshot(table, snapshot_name, *args)
       end
     end
   end

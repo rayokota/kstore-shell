@@ -18,9 +18,12 @@
 #
 
 include Java
+java_import org.apache.hadoop.hbase.client.ConnectionFactory
+java_import org.apache.hadoop.hbase.HBaseConfiguration
 
 require 'hbase/admin'
 require 'hbase/table'
+require 'hbase/taskmonitor'
 require 'hbase/quotas'
 require 'hbase/security'
 require 'hbase/visibility_labels'
@@ -34,44 +37,46 @@ module Hbase
       if config
         self.configuration = config
       else
-        self.configuration = org.apache.hadoop.hbase.HBaseConfiguration.create
+        self.configuration = HBaseConfiguration.create
         # Turn off retries in hbase and ipc.  Human doesn't want to wait on N retries.
-        configuration.setInt("hbase.client.retries.number", 7)
-        configuration.setInt("hbase.ipc.client.connect.max.retries", 3)
+        configuration.setInt('hbase.client.retries.number', 7)
+        configuration.setInt('hbase.ipc.client.connect.max.retries', 3)
       end
-      @connection = org.apache.hadoop.hbase.client.ConnectionFactory.createConnection(
-          self.configuration)
-
-      at_exit do        # LV3 -- Make sure the connection is closed
-        shutdown       # LV3 -- ideally we'd call shutdown, but it gives a lot of logging now.
-#         Kernel.exit!(0) # LV3 -- close and ignore threads
-      end               # LV3
-
+      @connection = ConnectionFactory.createConnection(configuration)
     end
 
-    def admin(formatter)
-      ::Hbase::Admin.new(@connection.getAdmin, formatter)
+    # Returns ruby's Admin class from admin.rb
+    def admin
+      ::Hbase::Admin.new(@connection)
+    end
+
+    def rsgroup_admin
+      ::Hbase::RSGroupAdmin.new(@connection)
+    end
+
+    def taskmonitor
+      ::Hbase::TaskMonitor.new(configuration)
     end
 
     # Create new one each time
     def table(table, shell)
-      ::Hbase::Table.new(@connection.getTable(table), shell)
+      ::Hbase::Table.new(@connection.getTable(TableName.valueOf(table)), shell)
     end
 
-    def replication_admin(formatter)
-      ::Hbase::RepAdmin.new(configuration, formatter)
+    def replication_admin
+      ::Hbase::RepAdmin.new(configuration)
     end
 
-    def security_admin(formatter)
-      ::Hbase::SecurityAdmin.new(@connection.getAdmin, formatter)
+    def security_admin
+      ::Hbase::SecurityAdmin.new(@connection.getAdmin)
     end
 
-    def visibility_labels_admin(formatter)
-      ::Hbase::VisibilityLabelsAdmin.new(@connection.getAdmin, formatter)
+    def visibility_labels_admin
+      ::Hbase::VisibilityLabelsAdmin.new(@connection.getAdmin)
     end
-    
-    def quotas_admin(formatter)
-      ::Hbase::QuotasAdmin.new(@connection.getAdmin, formatter)
+
+    def quotas_admin
+      ::Hbase::QuotasAdmin.new(@connection.getAdmin)
     end
 
     def shutdown

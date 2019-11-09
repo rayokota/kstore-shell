@@ -21,7 +21,7 @@ module Shell
   module Commands
     class AlterAsync < Command
       def help
-        return <<-EOF
+        <<-EOF
 Alter column family schema, does not wait for all regions to receive the
 schema changes. Pass table name and a dictionary specifying new column
 family schema. Dictionaries are described on the main help command output.
@@ -40,8 +40,8 @@ or a shorter version:
 
   hbase> alter_async 'ns1:t1', 'delete' => 'f1'
 
-You can also change table-scope attributes like MAX_FILESIZE
-MEMSTORE_FLUSHSIZE, READONLY, and DEFERRED_LOG_FLUSH.
+You can also change table-scope attributes like MAX_FILESIZE,
+MEMSTORE_FLUSHSIZE, and READONLY.
 
 For example, to change the max size of a family to 128MB, do:
 
@@ -56,9 +56,7 @@ EOF
       end
 
       def command(table, *args)
-        format_simple_command do
-          admin.alter(table, false, *args)
-        end
+        admin.alter(table, false, *args)
       end
     end
   end

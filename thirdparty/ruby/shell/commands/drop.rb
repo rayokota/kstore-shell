@@ -21,7 +21,7 @@ module Shell
   module Commands
     class Drop < Command
       def help
-        return <<-EOF
+        <<-EOF
 Drop the named table. Table must first be disabled:
   hbase> drop 't1'
   hbase> drop 'ns1:t1'
@@ -29,9 +29,7 @@ EOF
       end
 
       def command(table)
-        format_simple_command do
-          admin.drop(table)
-        end
+        admin.drop(table)
       end
     end
   end

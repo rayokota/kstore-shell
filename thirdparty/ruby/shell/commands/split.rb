@@ -21,22 +21,21 @@ module Shell
   module Commands
     class Split < Command
       def help
-        return <<-EOF
-Split entire table or pass a region to split individual region.  With the 
-second parameter, you can specify an explicit split key for the region.  
+        <<-EOF
+Split entire table or pass a region to split individual region.  With the
+second parameter, you can specify an explicit split key for the region.
 Examples:
-    split 'tableName'
-    split 'namespace:tableName'
-    split 'regionName' # format: 'tableName,startKey,id'
-    split 'tableName', 'splitKey'
-    split 'regionName', 'splitKey'
+    split 'TABLENAME'
+    split 'REGIONNAME'
+    split 'ENCODED_REGIONNAME'
+    split 'TABLENAME', 'splitKey'
+    split 'REGIONNAME', 'splitKey'
+    split 'ENCODED_REGIONNAME', 'splitKey'
 EOF
       end
 
       def command(table_or_region_name, split_point = nil)
-        format_simple_command do
-          admin.split(table_or_region_name, split_point)
-        end
+        admin.split(table_or_region_name, split_point)
       end
     end
   end

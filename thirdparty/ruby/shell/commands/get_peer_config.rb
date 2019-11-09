@@ -19,34 +19,29 @@ module Shell
   module Commands
     class GetPeerConfig < Command
       def help
-        return <<-EOF
+        <<-EOF
           Outputs the cluster key, replication endpoint class (if present), and any replication configuration parameters
         EOF
       end
 
       def command(id)
-          peer_config = replication_admin.get_peer_config(id)
-          format_simple_command do
-            format_peer_config(peer_config)
-          end
+        peer_config = replication_admin.get_peer_config(id)
+        @start_time = Time.now
+        format_peer_config(peer_config)
+        peer_config
       end
 
       def format_peer_config(peer_config)
         cluster_key = peer_config.get_cluster_key
         endpoint = peer_config.get_replication_endpoint_impl
 
-        unless cluster_key.nil?
-          formatter.row(["Cluster Key", cluster_key])
-        end
-        unless endpoint.nil?
-          formatter.row(["Replication Endpoint", endpoint])
-        end
+        formatter.row(['Cluster Key', cluster_key]) unless cluster_key.nil?
+        formatter.row(['Replication Endpoint', endpoint]) unless endpoint.nil?
         unless peer_config.get_configuration.nil?
           peer_config.get_configuration.each do |config_entry|
             formatter.row(config_entry)
           end
         end
-
       end
     end
   end

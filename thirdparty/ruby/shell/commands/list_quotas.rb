@@ -21,7 +21,7 @@ module Shell
   module Commands
     class ListQuotas < Command
       def help
-        return <<-EOF
+        <<-EOF
 List the quota settings added to the system.
 You can filter the result based on USER, TABLE, or NAMESPACE.
 
@@ -37,15 +37,14 @@ EOF
       end
 
       def command(args = {})
-        now = Time.now
-        formatter.header(["OWNER", "QUOTAS"])
+        formatter.header(%w[OWNER QUOTAS])
 
-        #actually do the scanning
+        # actually do the scanning
         count = quotas_admin.list_quotas(args) do |row, cells|
-          formatter.row([ row, cells ])
+          formatter.row([row, cells])
         end
 
-        formatter.footer(now, count)
+        formatter.footer(count)
       end
     end
   end

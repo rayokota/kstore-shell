@@ -21,7 +21,7 @@ module Shell
   module Commands
     class BalancerEnabled < Command
       def help
-        return <<-EOF
+        <<-EOF
 Query the balancer's state.
 Examples:
 
@@ -29,12 +29,10 @@ Examples:
 EOF
       end
 
-      def command()
-        format_simple_command do
-          formatter.row([
-            admin.balancer_enabled?.to_s
-          ])
-        end
+      def command
+        state = admin.balancer_enabled?
+        formatter.row([state.to_s])
+        state
       end
     end
   end

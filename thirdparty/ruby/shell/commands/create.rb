@@ -21,12 +21,12 @@ module Shell
   module Commands
     class Create < Command
       def help
-        return <<-EOF
+        <<-EOF
 Creates a table. Pass a table name, and a set of column family
 specifications (at least one), and, optionally, table configuration.
 Column specification can be a simple string (name), or a dictionary
-(dictionaries are described below in main help output), necessarily 
-including NAME attribute. 
+(dictionaries are described below in main help output), necessarily
+including NAME attribute.
 Examples:
 
 Create a table with namespace=ns1 and table qualifier=t1
@@ -38,7 +38,8 @@ Create a table with namespace=default and table qualifier=t1
   hbase> create 't1', 'f1', 'f2', 'f3'
   hbase> create 't1', {NAME => 'f1', VERSIONS => 1, TTL => 2592000, BLOCKCACHE => true}
   hbase> create 't1', {NAME => 'f1', CONFIGURATION => {'hbase.hstore.blockingStoreFiles' => '10'}}
-  
+  hbase> create 't1', {NAME => 'f1', IS_MOB => true, MOB_THRESHOLD => 1000000, MOB_COMPACT_PARTITION_POLICY => 'weekly'}
+
 Table configuration options can be put at the end.
 Examples:
 
@@ -50,6 +51,7 @@ Examples:
   hbase> # SPLITALGO ("HexStringSplit", "UniformSplit" or classname)
   hbase> create 't1', 'f1', {NUMREGIONS => 15, SPLITALGO => 'HexStringSplit'}
   hbase> create 't1', 'f1', {NUMREGIONS => 15, SPLITALGO => 'HexStringSplit', REGION_REPLICATION => 2, CONFIGURATION => {'hbase.hregion.scan.loadColumnFamiliesOnDemand' => 'true'}}
+  hbase> create 't1', 'f1', {SPLIT_ENABLED => false, MERGE_ENABLED => false}
   hbase> create 't1', {NAME => 'f1', DFS_REPLICATION => 1}
 
 You can also keep around a reference to the created table:
@@ -62,10 +64,11 @@ EOF
       end
 
       def command(table, *args)
-        format_simple_command do
-          ret = admin.create(table, *args)
-        end
-        #and then return the table you just created
+        admin.create(table, *args)
+        @end_time = Time.now
+        puts 'Created table ' + table.to_s
+
+        # and then return the table just created
         table(table)
       end
     end

@@ -21,7 +21,7 @@ module Shell
   module Commands
     class Exists < Command
       def help
-        return <<-EOF
+        <<-EOF
 Does the named table exist?
   hbase> exists 't1'
   hbase> exists 'ns1:t1'
@@ -29,11 +29,11 @@ EOF
       end
 
       def command(table)
-        format_simple_command do
-          formatter.row([
-            "Table #{table} " + (admin.exists?(table.to_s) ? "does exist" : "does not exist")
-          ])
-        end
+        exists = admin.exists?(table.to_s)
+        formatter.row([
+                        "Table #{table} " + (exists ? 'does exist' : 'does not exist')
+                      ])
+        exists
       end
     end
   end

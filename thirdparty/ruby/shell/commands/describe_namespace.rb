@@ -21,21 +21,28 @@ module Shell
   module Commands
     class DescribeNamespace < Command
       def help
-        return <<-EOF
+        <<-EOF
 Describe the named namespace. For example:
   hbase> describe_namespace 'ns1'
 EOF
       end
 
+      # rubocop:disable Metrics/AbcSize
       def command(namespace)
-        now = Time.now
-
         desc = admin.describe_namespace(namespace)
 
-        formatter.header([ "DESCRIPTION" ], [ 64 ])
-        formatter.row([ desc ], true, [ 64 ])
-        formatter.footer(now)
+        formatter.header(['DESCRIPTION'], [64])
+        formatter.row([desc], true, [64])
+
+        puts
+        formatter.header(%w[QUOTAS])
+        ns = namespace.to_s
+        count = quotas_admin.list_quotas(NAMESPACE => ns) do |_, quota|
+          formatter.row([quota])
+        end
+        formatter.footer(count)
       end
+      # rubocop:enable Metrics/AbcSize
     end
   end
 end

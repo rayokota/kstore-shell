@@ -21,7 +21,7 @@ module Shell
   module Commands
     class Count < Command
       def help
-        return <<-EOF
+        <<-EOF
 Count the number of rows in a table.  Return value is the number of rows.
 This operation may take a LONG time (Run '$HADOOP_HOME/bin/hadoop jar
 hbase.jar rowcount' to run a counting mapreduce job). Current count is shown
@@ -35,6 +35,9 @@ parameter. Examples:
  hbase> count 't1', INTERVAL => 100000
  hbase> count 't1', CACHE => 1000
  hbase> count 't1', INTERVAL => 10, CACHE => 1000
+ hbase> count 't1', FILTER => "
+    (QualifierFilter (>=, 'binary:xyz')) AND (TimestampsFilter ( 123, 456))"
+ hbase> count 't1', COLUMNS => ['c1', 'c2'], STARTROW => 'abc', STOPROW => 'xyz'
 
 The same commands also can be run on a table reference. Suppose you had a reference
 t to table 't1', the corresponding commands would be:
@@ -43,6 +46,9 @@ t to table 't1', the corresponding commands would be:
  hbase> t.count INTERVAL => 100000
  hbase> t.count CACHE => 1000
  hbase> t.count INTERVAL => 10, CACHE => 1000
+ hbase> t.count FILTER => "
+    (QualifierFilter (>=, 'binary:xyz')) AND (TimestampsFilter ( 123, 456))"
+ hbase> t.count COLUMNS => ['c1', 'c2'], STARTROW => 'abc', STOPROW => 'xyz'
 EOF
       end
 
@@ -52,7 +58,7 @@ EOF
 
       def count(table, params = {})
         # If the second parameter is an integer, then it is the old command syntax
-        params = { 'INTERVAL' => params } if params.kind_of?(Fixnum)
+        params = { 'INTERVAL' => params } if params.is_a?(Integer)
 
         # Merge params with defaults
         params = {
@@ -60,18 +66,19 @@ EOF
           'CACHE' => 10
         }.merge(params)
 
+        scan = table._hash_to_scan(params)
         # Call the counter method
-        now = Time.now
+        @start_time = Time.now
         formatter.header
-        count = table._count_internal(params['INTERVAL'].to_i, params['CACHE'].to_i) do |cnt, row|
-          formatter.row([ "Current count: #{cnt}, row: #{row}" ])
+        count = table._count_internal(params['INTERVAL'].to_i, scan) do |cnt, row|
+          formatter.row(["Current count: #{cnt}, row: #{row}"])
         end
-        formatter.footer(now, count)
-        return count
+        formatter.footer(count)
+        count
       end
     end
   end
 end
 
-#Add the method table.count that calls count.count
-::Hbase::Table.add_shell_command("count")
+# Add the method table.count that calls count.count
+::Hbase::Table.add_shell_command('count')

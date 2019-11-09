@@ -19,9 +19,9 @@
 
 module Shell
   module Commands
-    class RemovePeer< Command
+    class RemovePeer < Command
       def help
-        return <<-EOF
+        <<-EOF
 Stops the specified replication stream and deletes all the meta
 information kept about it. Examples:
 
@@ -30,9 +30,7 @@ EOF
       end
 
       def command(id)
-        format_simple_command do
-          replication_admin.remove_peer(id)
-        end
+        replication_admin.remove_peer(id)
       end
     end
   end

@@ -19,7 +19,7 @@ module Shell
   module Commands
     class SetAuths < Command
       def help
-        return <<-EOF
+        <<-EOF
 Add a set of visibility labels for a user or group
 Syntax : set_auths 'user',[label1, label2]
 
@@ -31,9 +31,7 @@ EOF
       end
 
       def command(user, *args)
-        format_simple_command do
-          visibility_labels_admin.set_auths(user, args)
-        end
+        visibility_labels_admin.set_auths(user, args)
       end
     end
   end

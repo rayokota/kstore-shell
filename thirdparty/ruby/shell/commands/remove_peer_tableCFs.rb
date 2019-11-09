@@ -21,21 +21,23 @@ module Shell
   module Commands
     class RemovePeerTableCFs < Command
       def help
-        return <<-EOF
+        <<-EOF
 Remove a table / table-cf from the table-cfs config for the specified peer
 Examples:
 
   # Remove a table / table-cf from the replicable table-cfs for a peer
-  hbase> remove_peer_tableCFs '2', "table1"
-  hbase> remove_peer_tableCFs '2', "table1:cf1"
+  hbase> remove_peer_tableCFs '2',  { "ns1:table1" => []}
+  hbase> remove_peer_tableCFs '2',  { "ns1:table1" => ["cf1"]}
 
 EOF
       end
 
       def command(id, table_cfs)
-        format_simple_command do
-          replication_admin.remove_peer_tableCFs(id, table_cfs)
-        end
+        replication_admin.remove_peer_tableCFs(id, table_cfs)
+      end
+
+      def command_name
+        'remove_peer_tableCFs'
       end
     end
   end

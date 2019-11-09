@@ -21,8 +21,8 @@ module Shell
   module Commands
     class List < Command
       def help
-        return <<-EOF
-List all tables in hbase. Optional regular expression parameter could
+        <<-EOF
+List all user tables in hbase. Optional regular expression parameter could
 be used to filter the output. Examples:
 
   hbase> list
@@ -32,17 +32,16 @@ be used to filter the output. Examples:
 EOF
       end
 
-      def command(regex = ".*")
-        now = Time.now
-        formatter.header([ "TABLE" ])
+      def command(regex = '.*')
+        formatter.header(['TABLE'])
 
         list = admin.list(regex)
         list.each do |table|
-          formatter.row([ table ])
+          formatter.row([table])
         end
 
-        formatter.footer(now, list.size)
-        return list
+        formatter.footer(list.size)
+        list
       end
     end
   end

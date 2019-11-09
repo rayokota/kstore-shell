@@ -21,7 +21,7 @@ module Shell
   module Commands
     class Move < Command
       def help
-        return <<-EOF
+        <<-EOF
 Move a region.  Optionally specify target regionserver else we choose one
 at random.  NOTE: You pass the encoded region name, not the region name so
 this command is a little different to the others.  The encoded region name
@@ -38,9 +38,7 @@ EOF
       end
 
       def command(encoded_region_name, server_name = nil)
-        format_simple_command do
-          admin.move(encoded_region_name, server_name)
-        end
+        admin.move(encoded_region_name, server_name)
       end
     end
   end

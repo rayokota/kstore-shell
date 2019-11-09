@@ -22,7 +22,7 @@ module Shell
   module Commands
     class LocateRegion < Command
       def help
-        return <<-EOF
+        <<-EOF
 Locate the region given a table name and a row-key
 
   hbase> locate_region 'tableName', 'key0'
@@ -30,14 +30,13 @@ EOF
       end
 
       def command(table, row_key)
-        now = Time.now
-
         region_location = admin.locate_region(table, row_key)
-        hri = region_location.getRegionInfo()
+        hri = region_location.getRegionInfo
 
-        formatter.header([ "HOST", "REGION" ])
-        formatter.row([region_location.getHostnamePort(), hri.toString()])
-        formatter.footer(now, 1)
+        formatter.header(%w[HOST REGION])
+        formatter.row([region_location.getHostnamePort, hri.toString])
+        formatter.footer(1)
+        region_location
       end
     end
   end

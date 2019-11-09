@@ -21,7 +21,7 @@ module Shell
   module Commands
     class AlterNamespace < Command
       def help
-        return <<-EOF
+        <<-EOF
 Alter namespace properties.
 
 To add/modify a property:
@@ -35,9 +35,7 @@ EOF
       end
 
       def command(namespace, *args)
-        format_simple_command do
-          admin.alter_namespace(namespace, *args)
-        end
+        admin.alter_namespace(namespace, *args)
       end
     end
   end

@@ -19,7 +19,7 @@ module Shell
   module Commands
     class GetAuths < Command
       def help
-        return <<-EOF
+        <<-EOF
 Get the visibility labels set for a particular user or group
 Syntax : get_auths 'user'
 
@@ -31,12 +31,11 @@ EOF
       end
 
       def command(user)
-        format_simple_command do
-          list = visibility_labels_admin.get_auths(user)
-          list.each do |auths|
-            formatter.row([org.apache.hadoop.hbase.util.Bytes::toStringBinary(auths.toByteArray)])
-          end  
+        list = visibility_labels_admin.get_auths(user)
+        list.each do |auths|
+          formatter.row([org.apache.hadoop.hbase.util.Bytes.toStringBinary(auths.toByteArray)])
         end
+        list
       end
     end
   end

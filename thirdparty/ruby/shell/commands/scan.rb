@@ -21,11 +21,13 @@ module Shell
   module Commands
     class Scan < Command
       def help
-        return <<-EOF
+        <<-EOF
 Scan a table; pass table name and optionally a dictionary of scanner
 specifications.  Scanner specifications may include one or more of:
 TIMERANGE, FILTER, LIMIT, STARTROW, STOPROW, ROWPREFIXFILTER, TIMESTAMP,
-MAXLENGTH or COLUMNS, CACHE or RAW, VERSIONS, ALL_METRICS or METRICS
+MAXLENGTH, COLUMNS, CACHE, RAW, VERSIONS, ALL_METRICS, METRICS,
+REGION_REPLICA_ID, ISOLATION_LEVEL, READ_TYPE, ALLOW_PARTIAL_RESULTS,
+BATCH or MAX_RESULT_SIZE
 
 If no columns are specified, all columns will be scanned.
 To scan all members of a column family, leave the qualifier empty as in
@@ -38,7 +40,7 @@ Filter Language document attached to the HBASE-4176 JIRA
 
 If you wish to see metrics regarding the execution of the scan, the
 ALL_METRICS boolean should be set to true. Alternatively, if you would
-prefer to see only a subset of the metrics, the METRICS array can be 
+prefer to see only a subset of the metrics, the METRICS array can be
 defined to include the names of only the metrics you care about.
 
 Some examples:
@@ -47,7 +49,7 @@ Some examples:
   hbase> scan 'hbase:meta', {COLUMNS => 'info:regioninfo'}
   hbase> scan 'ns1:t1', {COLUMNS => ['c1', 'c2'], LIMIT => 10, STARTROW => 'xyz'}
   hbase> scan 't1', {COLUMNS => ['c1', 'c2'], LIMIT => 10, STARTROW => 'xyz'}
-  hbase> scan 't1', {COLUMNS => 'c1', TIMERANGE => [1303668804, 1303668904]}
+  hbase> scan 't1', {COLUMNS => 'c1', TIMERANGE => [1303668804000, 1303668904000]}
   hbase> scan 't1', {REVERSED => true}
   hbase> scan 't1', {ALL_METRICS => true}
   hbase> scan 't1', {METRICS => ['RPC_RETRIES', 'ROWS_FILTERED']}
@@ -56,7 +58,9 @@ Some examples:
   hbase> scan 't1', {FILTER =>
     org.apache.hadoop.hbase.filter.ColumnPaginationFilter.new(1, 0)}
   hbase> scan 't1', {CONSISTENCY => 'TIMELINE'}
-For setting the Operation Attributes 
+  hbase> scan 't1', {ISOLATION_LEVEL => 'READ_UNCOMMITTED'}
+  hbase> scan 't1', {MAX_RESULT_SIZE => 123456}
+For setting the Operation Attributes
   hbase> scan 't1', { COLUMNS => ['c1', 'c2'], ATTRIBUTES => {'mykey' => 'myvalue'}}
   hbase> scan 't1', { COLUMNS => ['c1', 'c2'], AUTHORIZATIONS => ['PRIVATE','SECRET']}
 For experts, there is an additional option -- CACHE_BLOCKS -- which
@@ -72,19 +76,29 @@ Disabled by default.  Example:
 
   hbase> scan 't1', {RAW => true, VERSIONS => 10}
 
+There is yet another option -- READ_TYPE -- which instructs the scanner to
+use a specific read type. Example:
+
+  hbase> scan 't1', {READ_TYPE => 'PREAD'}
+
 Besides the default 'toStringBinary' format, 'scan' supports custom formatting
 by column.  A user can define a FORMATTER by adding it to the column name in
-the scan specification.  The FORMATTER can be stipulated: 
+the scan specification.  The FORMATTER can be stipulated:
 
  1. either as a org.apache.hadoop.hbase.util.Bytes method name (e.g, toInt, toString)
  2. or as a custom class followed by method name: e.g. 'c(MyFormatterClass).format'.
 
-Example formatting cf:qualifier1 and cf:qualifier2 both as Integers: 
+Example formatting cf:qualifier1 and cf:qualifier2 both as Integers:
   hbase> scan 't1', {COLUMNS => ['cf:qualifier1:toInt',
-    'cf:qualifier2:c(org.apache.hadoop.hbase.util.Bytes).toInt'] } 
+    'cf:qualifier2:c(org.apache.hadoop.hbase.util.Bytes).toInt'] }
 
-Note that you can specify a FORMATTER by column only (cf:qualifier).  You cannot
-specify a FORMATTER for all columns of a column family.
+Note that you can specify a FORMATTER by column only (cf:qualifier). You can set a
+formatter for all columns (including, all key parts) using the "FORMATTER"
+and "FORMATTER_CLASS" options. The default "FORMATTER_CLASS" is
+"org.apache.hadoop.hbase.util.Bytes".
+
+  hbase> scan 't1', {FORMATTER => 'toString'}
+  hbase> scan 't1', {FORMATTER_CLASS => 'org.apache.hadoop.hbase.util.Bytes', FORMATTER => 'toString'}
 
 Scan can also be used directly from a table, by first getting a reference to a
 table, like such:
@@ -102,26 +116,27 @@ EOF
         scan(table(table), args)
       end
 
-      #internal command that actually does the scanning
+      # internal command that actually does the scanning
       def scan(table, args = {})
-        now = Time.now
-        formatter.header(["ROW", "COLUMN+CELL"])
+        formatter.header(['ROW', 'COLUMN+CELL'])
 
         scan = table._hash_to_scan(args)
-        #actually do the scanning
+        # actually do the scanning
+        @start_time = Time.now
         count, is_stale = table._scan_internal(args, scan) do |row, cells|
-          formatter.row([ row, cells ])
+          formatter.row([row, cells])
         end
+        @end_time = Time.now
 
-        formatter.footer(now, count, is_stale)
+        formatter.footer(count, is_stale)
         # if scan metrics were enabled, print them after the results
-        if (scan != nil && scan.isScanMetricsEnabled())
-          formatter.scan_metrics(scan.getScanMetrics(), args["METRICS"])
+        if !scan.nil? && scan.isScanMetricsEnabled
+          formatter.scan_metrics(scan.getScanMetrics, args['METRICS'])
         end
       end
     end
   end
 end
 
-#Add the method table.scan that calls Scan.scan
-::Hbase::Table.add_shell_command("scan")
+# Add the method table.scan that calls Scan.scan
+::Hbase::Table.add_shell_command('scan')

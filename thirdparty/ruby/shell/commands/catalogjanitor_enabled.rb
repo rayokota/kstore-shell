@@ -20,7 +20,7 @@ module Shell
   module Commands
     class CatalogjanitorEnabled < Command
       def help
-        return <<-EOF
+        <<-EOF
 Query for the CatalogJanitor state (enabled/disabled?)
 Examples:
 
@@ -28,12 +28,8 @@ Examples:
 EOF
       end
 
-      def command()
-        format_simple_command do
-          formatter.row([
-            admin.catalogjanitor_enabled()? "true" : "false"
-          ])
-        end
+      def command
+        formatter.row([admin.catalogjanitor_enabled ? 'true' : 'false'])
       end
     end
   end

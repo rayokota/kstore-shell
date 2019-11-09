@@ -20,28 +20,47 @@
 
 module Shell
   module Commands
-    class ListPeers< Command
+    class ListPeers < Command
       def help
-        return <<-EOF
-List all replication peer clusters.
+        <<-EOF
+  List all replication peer clusters.
+
+  If replicate_all flag is false, the namespaces and table-cfs in peer config
+  will be replicated to peer cluster.
+
+  If replicate_all flag is true, all user tables will be replicate to peer
+  cluster, except that the namespaces and table-cfs in peer config.
 
   hbase> list_peers
 EOF
       end
 
-      def command()
-        now = Time.now
+      def command
         peers = replication_admin.list_peers
 
-        formatter.header(["PEER_ID", "CLUSTER_KEY", "STATE", "TABLE_CFS"])
+        formatter.header(%w[PEER_ID CLUSTER_KEY ENDPOINT_CLASSNAME
+                            STATE REPLICATE_ALL NAMESPACES TABLE_CFS BANDWIDTH
+                            SERIAL])
 
-        peers.entrySet().each do |e|
-          state = replication_admin.get_peer_state(e.key)
-          tableCFs = replication_admin.show_peer_tableCFs(e.key)
-          formatter.row([ e.key, e.value, state, tableCFs ])
+        peers.each do |peer|
+          id = peer.getPeerId
+          state = peer.isEnabled ? 'ENABLED' : 'DISABLED'
+          config = peer.getPeerConfig
+          if config.replicateAllUserTables
+            namespaces = replication_admin.show_peer_exclude_namespaces(config)
+            tableCFs = replication_admin.show_peer_exclude_tableCFs(config)
+          else
+            namespaces = replication_admin.show_peer_namespaces(config)
+            tableCFs = replication_admin.show_peer_tableCFs_by_config(config)
+          end
+          formatter.row([id, config.getClusterKey,
+                         config.getReplicationEndpointImpl, state,
+                         config.replicateAllUserTables, namespaces, tableCFs,
+                         config.getBandwidth, config.isSerial])
         end
 
-        formatter.footer(now)
+        formatter.footer
+        peers
       end
     end
   end

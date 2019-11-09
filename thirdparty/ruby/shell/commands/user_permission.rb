@@ -20,7 +20,7 @@ module Shell
   module Commands
     class UserPermission < Command
       def help
-        return <<-EOF
+        <<-EOF
 Show all permissions for the particular user.
 Syntax : user_permission <table>
 
@@ -39,17 +39,15 @@ For example:
 EOF
       end
 
-      def command(table_regex=nil)
-        #format_simple_command do
-        #admin.user_permission(table_regex)
-        now = Time.now
-        formatter.header(["User", "Namespace,Table,Family,Qualifier:Permission"])
+      def command(table_regex = nil)
+        # admin.user_permission(table_regex)
+        formatter.header(['User', 'Namespace,Table,Family,Qualifier:Permission'])
 
         count = security_admin.user_permission(table_regex) do |user, permission|
-          formatter.row([ user, permission])
+          formatter.row([user, permission])
         end
 
-        formatter.footer(now, count)
+        formatter.footer(count)
       end
     end
   end

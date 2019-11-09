@@ -19,22 +19,24 @@
 
 module Shell
   module Commands
-    class AppendPeerTableCFs< Command
+    class AppendPeerTableCFs < Command
       def help
-        return <<-EOF
+        <<-EOF
 Append a replicable table-cf config for the specified peer
 Examples:
 
   # append a table / table-cf to be replicable for a peer
-  hbase> append_peer_tableCFs '2', "table4:cfA,cfB"
+  hbase> append_peer_tableCFs '2', { "ns1:table4" => ["cfA", "cfB"]}
 
 EOF
       end
 
       def command(id, table_cfs)
-        format_simple_command do
-          replication_admin.append_peer_tableCFs(id, table_cfs)
-        end
+        replication_admin.append_peer_tableCFs(id, table_cfs)
+      end
+
+      def command_name
+        'append_peer_tableCFs'
       end
     end
   end

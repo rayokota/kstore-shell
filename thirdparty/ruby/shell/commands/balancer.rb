@@ -21,9 +21,9 @@ module Shell
   module Commands
     class Balancer < Command
       def help
-        return <<-EOF
+        <<-EOF
 Trigger the cluster balancer. Returns true if balancer ran and was able to
-tell the region servers to unassign all the regions to balance  (the re-assignment itself is async). 
+tell the region servers to unassign all the regions to balance  (the re-assignment itself is async).
 Otherwise false (Will not run if regions in transition).
 Parameter tells master whether we should force balance even if there is region in transition.
 
@@ -37,16 +37,14 @@ Examples:
 EOF
       end
 
-      def command(force=nil)
-        format_simple_command do
-          formatter.row([
-            if force.nil?
-              admin.balancer("false")? "true": "false"
-            elsif force == "force"
-              admin.balancer("true")? "true": "false"
-            end
-          ])
+      def command(force = nil)
+        force_balancer = 'false'
+        if force == 'force'
+          force_balancer = 'true'
+        elsif !force.nil?
+          raise ArgumentError, "Invalid argument #{force}."
         end
+        formatter.row([admin.balancer(force_balancer) ? 'true' : 'false'])
       end
     end
   end

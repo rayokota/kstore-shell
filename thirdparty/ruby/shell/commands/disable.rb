@@ -21,7 +21,7 @@ module Shell
   module Commands
     class Disable < Command
       def help
-        return <<-EOF
+        <<-EOF
 Start disable of named table:
   hbase> disable 't1'
   hbase> disable 'ns1:t1'
@@ -29,9 +29,7 @@ EOF
       end
 
       def command(table)
-        format_simple_command do
-          admin.disable(table)
-        end
+        admin.disable(table)
       end
     end
   end

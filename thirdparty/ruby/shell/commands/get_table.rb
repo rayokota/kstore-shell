@@ -20,7 +20,7 @@ module Shell
   module Commands
     class GetTable < Command
       def help
-        return <<-EOF
+        <<-EOF
 Get the given table name and return it as an actual object to
 be manipulated by the user. See table.help for more information
 on how to use the table.
@@ -37,10 +37,8 @@ which will then print the help for that table.
 EOF
       end
 
-      def command(table, *args)
-        format_and_return_simple_command do
-          table(table)
-        end
+      def command(table, *_args)
+        table(table)
       end
     end
   end

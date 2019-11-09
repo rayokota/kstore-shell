@@ -19,7 +19,7 @@ module Shell
   module Commands
     class SetVisibility < Command
       def help
-        return <<-EOF
+        <<-EOF
 Set the visibility expression on one or more existing cells.
 
 Pass table name, visibility expression, and a dictionary containing
@@ -39,7 +39,7 @@ Examples:
 
     hbase> set_visibility 't1', 'A|B', {COLUMNS => ['c1', 'c2']}
     hbase> set_visibility 't1', '(A&B)|C', {COLUMNS => 'c1',
-        TIMERANGE => [1303668804, 1303668904]}
+        TIMERANGE => [1303668804000, 1303668904000]}
     hbase> set_visibility 't1', 'A&B&C', {ROWPREFIXFILTER => 'row2',
         FILTER => "(QualifierFilter (>=, 'binary:xyz')) AND
         (TimestampsFilter ( 123, 456))"}
@@ -51,13 +51,13 @@ EOF
 
       def command(table, visibility, scan)
         t = table(table)
-        now = Time.now
+        @start_time = Time.now
         scanner = t._get_scanner(scan)
         count = 0
         iter = scanner.iterator
         while iter.hasNext
           row = iter.next
-          row.list.each do |cell|
+          row.listCells.each do |cell|
             put = org.apache.hadoop.hbase.client.Put.new(row.getRow)
             put.add(cell)
             t.set_cell_visibility(put, visibility)
@@ -65,9 +65,8 @@ EOF
           end
           count += 1
         end
-        formatter.footer(now, count)
+        formatter.footer(count)
       end
-
     end
   end
 end

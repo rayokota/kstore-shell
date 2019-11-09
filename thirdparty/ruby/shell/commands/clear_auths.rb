@@ -19,7 +19,7 @@ module Shell
   module Commands
     class ClearAuths < Command
       def help
-        return <<-EOF
+        <<-EOF
 Clear visibility labels from a user or group
 Syntax : clear_auths 'user',[label1, label2]
 
@@ -31,9 +31,7 @@ EOF
       end
 
       def command(user, *args)
-        format_simple_command do
-          visibility_labels_admin.clear_auths(user, args)
-        end
+        visibility_labels_admin.clear_auths(user, args)
       end
     end
   end

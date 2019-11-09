@@ -21,7 +21,7 @@ module Shell
   module Commands
     class IsEnabled < Command
       def help
-        return <<-EOF
+        <<-EOF
 Is named table enabled? For example:
   hbase> is_enabled 't1'
   hbase> is_enabled 'ns1:t1'
@@ -29,11 +29,9 @@ EOF
       end
 
       def command(table)
-        format_simple_command do
-          formatter.row([
-            admin.enabled?(table)? "true" : "false"
-          ])
-        end
+        enabled = admin.enabled?(table)
+        formatter.row([enabled ? 'true' : 'false'])
+        enabled
       end
     end
   end
