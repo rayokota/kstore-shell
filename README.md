@@ -1,36 +1,22 @@
-## Apache HBase using Google Cloud Bigtable - QuickStart
+## KStore Shell (based on HBase Shell)
 
-Following these steps should get you to the hbase shell in 3 minutes.
+Following these steps should get you to the HBase shell in 1 minute.
 
 ## Prerequsites
   - [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
   - [Apache Maven](http://maven.apache.org/download.cgi)
-  - [Cloud SDK](https://cloud.google.com/sdk/)
-  - `gcloud components update`
-  - `gcloud components install alpha beta`
   - Bash or [cygwin](http://www.cygwin.com/)
   - A copy of this [project]() installed on your computer
 
 ## Project Setup, installation, and configuration
-1. Go to the [Cloud Console](https://cloud.google.com/console) and create or select your project.
-
-1. Enable Billing (if not all ready).
-
-1. Create a new [Bigtable Instance](https://cloud.google.com/bigtable/docs/creating-instance)
-    
-1. Select **APIs & Auth > APIs**
-
-  Verify that both the **Cloud Bigtable API** and the **Cloud Bigtable Admin API** are enabled.
-
-1. [Initialize gcloud](https://cloud.google.com/sdk/gcloud/#gcloud.init) via  **`gcloud init`**. This will initialize your credentials, your default cloud zone and project id.
 
 1. **`chmod +x quickstart.sh`**
 
-1. **`./quickstart.sh`** will write a valid hbase-site.xml for you.
+1. **`./kstore-shell.sh`** will write a valid hbase-site.xml for you.
 
 Alternatively you can just use maven directly.
 
-    mvn clean package exec:java -Dbigtable.projectID=... -Dbigtable.instanceID=...
+    mvn clean package exec:java -Dbootstrap.servers=...
 
 ## HBase shell
 
