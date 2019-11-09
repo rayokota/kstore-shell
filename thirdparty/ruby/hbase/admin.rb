@@ -37,7 +37,6 @@ module Hbase
       @connection = connection
       # Java Admin instance
       @admin = @connection.getAdmin
-      @hbck = @connection.getHbck
       @conf = @connection.getConfiguration
     end
 
@@ -248,12 +247,6 @@ module Hbase
     # Returns the state of maintenance mode (true is on).
     def in_maintenance_mode?
       @admin.isMasterInMaintenanceMode
-    end
-
-    #----------------------------------------------------------------------------------------------
-    # Request HBCK chore to run
-    def hbck_chore_run
-      @hbck.runHbckChore
     end
 
     #----------------------------------------------------------------------------------------------
