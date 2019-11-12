@@ -22,6 +22,7 @@
 -->
 <configuration>
   <property><name>kafkacache.bootstrap.servers</name><value>${bootstrap.servers}</value></property>
+  <property><name>rocksdb.enable</name><value>false</value></property>
   <property>
     <name>hbase.client.connection.impl</name>
     <value>io.kstore.KafkaStoreConnection</value>

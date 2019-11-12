@@ -199,7 +199,7 @@ if interactive
       IRB.setup(ap_path)
       @CONF[:IRB_NAME] = 'hbase'
       @CONF[:AP_NAME] = 'hbase'
-      @CONF[:BACK_TRACE_LIMIT] = 0 unless $fullBackTrace
+      @CONF[:BACK_TRACE_LIMIT] = 0 # unless $fullBackTrace
 
       hirb = if @CONF[:SCRIPT]
                HIRB.new(nil, @CONF[:SCRIPT])
