@@ -10,7 +10,7 @@ Following these steps should get you to the HBase shell in 1 minute.
 
 ## Project Setup, installation, and configuration
 
-1. **`chmod +x quickstart.sh`**
+1. **`chmod +x kstore-shell.sh`**
 
 1. **`./kstore-shell.sh`** will write a valid hbase-site.xml for you.
 
