@@ -1,6 +1,6 @@
-## KStore Shell (based on HBase Shell)
+## HBase Shell for KStore
 
-Following these steps should get you to the KStore shell in 1 minute.
+Following these steps should get you to the HBase shell in 1 minute.
 
 ## Prerequsites
   - [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
